@@ -13,30 +13,37 @@ export function activate(context: vscode.ExtensionContext) {
   // This line of code will only be executed once when your extension is activated
   console.log('vscode-hl7-tester is now active');
 
-  const hl7TestPanel = vscode.commands.registerCommand('hl7TestPanel.launch', () => {
-    const panel = vscode.window.createWebviewPanel(
-      'hl7TestPanel', // Identifies the type of the webview. Used internally
-      'HL7 Test Panel', // Title of the panel displayed to the user
-      vscode.ViewColumn.One, // Editor column to show the new webview panel in.
-      {
-        enableScripts: true
-      }
+  const hl7TestPanelSender = vscode.commands.registerCommand('hl7TestPanel.sender', () => hl7TestPanelSenderCommand(context));
+  const hl7TestPanelReceiver = vscode.commands.registerCommand('hl7TestPanel.receiver', () => hl7TestPanelReceiverCommand(context));
 
-    );
+  context.subscriptions.push(hl7TestPanelSender);
+  context.subscriptions.push(hl7TestPanelReceiver);
+}
 
+function hl7TestPanelSenderCommand(context: vscode.ExtensionContext) {
+  const panel = vscode.window.createWebviewPanel(
+    'hl7TestPanel', // Identifies the type of the webview. Used internally
+    'HL7 Test Panel', // Title of the panel displayed to the user
+    vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+    {
+      enableScripts: true
+    }
 
-    // And set its HTML content
-    panel.webview.html = getWebViewContent(context, panel);
+  );
 
-    // Handle messages from the webview
-    panel.webview.onDidReceiveMessage(
-      (message: VSCodeMessage) => handleOnDidReceiveMessage(message, panel),
-      undefined,
-      context.subscriptions
-    );
-  });
+  // And set its HTML content
+  panel.webview.html = getWebViewContent('view.html', context, panel);
 
-  context.subscriptions.push(hl7TestPanel);
+  // Handle messages from the webview
+  panel.webview.onDidReceiveMessage(
+    (message: VSCodeMessage) => handleOnDidReceiveMessage(message, panel),
+    undefined,
+    context.subscriptions
+  );
+}
+
+function hl7TestPanelReceiverCommand(context: vscode.ExtensionContext) {
+  // TODO: Create UI for receiving a HL7 message
 }
 
 function handleOnDidReceiveMessage(message: VSCodeMessage, panel: vscode.WebviewPanel) {

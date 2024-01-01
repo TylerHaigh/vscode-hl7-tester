@@ -14,8 +14,13 @@
   "contributes": {
     "commands": [
       {
-        "command": "hl7TestPanel.launch",
-        "title": "HL7 Test Panel: Launch new Test Panel",
+        "command": "hl7TestPanel.sender",
+        "title": "HL7 Test Panel: Launch new Test Panel Sender",
+        "categoy": "HL7 Test Panel"
+      },
+      {
+        "command": "hl7TestPanel.receiver",
+        "title": "HL7 Test Panel: Launch new Test Panel Receiver",
         "categoy": "HL7 Test Panel"
       }
     ]
