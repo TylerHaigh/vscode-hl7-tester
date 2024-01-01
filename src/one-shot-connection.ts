@@ -1,11 +1,8 @@
 import net from 'net';
 import * as vscode from 'vscode';
+import { HL7ConnectionDetails } from './models';
 
-export interface HL7ConnectionDetails {
-  host: string
-  port: number
-}
-
+// HL7 byte marks
 const VT = String.fromCharCode(0x0b);
 const FS = String.fromCharCode(0x1c);
 const CR = String.fromCharCode(0x0d);
@@ -39,7 +36,6 @@ export function sendOneShot(conn: HL7ConnectionDetails, message: string, panel: 
     console.log(response);
 
     // Send a message to our webview.
-    // You can send any JSON serializable data.
     panel.webview.postMessage({ command: 'responseData', data: response });
   });
 
