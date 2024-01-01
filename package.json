@@ -1,7 +1,7 @@
 {
-  "name": "myfirstextension",
-  "displayName": "myfirstextension",
-  "description": "tylers first extension",
+  "name": "hl7-tester",
+  "displayName": "VSCode HL7 Tester",
+  "description": "HL7 Test Panel",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.85.0"
@@ -14,17 +14,9 @@
   "contributes": {
     "commands": [
       {
-        "command": "myfirstextension.helloWorld.custom",
-        "title": "Execute Hello World"
-      },
-      {
-        "command": "myfirstextension.currentTime",
-        "title": "Display Current Time"
-      },
-      {
-        "command": "catCoding.start",
-        "title": "Start new cat coding session",
-        "categoy": "Cat Coding"
+        "command": "hl7TestPanel.launch",
+        "title": "HL7 Test Panel: Launch new Test Panel",
+        "categoy": "HL7 Test Panel"
       }
     ]
   },
