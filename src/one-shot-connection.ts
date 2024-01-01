@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable no-magic-numbers */
 import net from 'net';
 import * as vscode from 'vscode';
 import { HL7ConnectionDetails } from './models';
@@ -21,11 +23,11 @@ export function sendOneShot(conn: HL7ConnectionDetails, message: string, panel: 
   });
 
   socket.on('close', (hadError: boolean) => {
-    console.log('Socket has closed' + (hadError ? ' with error' : ''));
+    console.log(`Socket has closed${hadError ? ' with error' : ''}`);
   });
 
-  socket.on('error', (err) => {
-    console.error('Error detected: ' + err.message);
+  socket.on('error', err => {
+    console.error(`Error detected: ${err.message}`);
   });
 
   socket.on('data', (data: Buffer) => {
@@ -43,7 +45,7 @@ export function sendOneShot(conn: HL7ConnectionDetails, message: string, panel: 
     console.log('Socket has ended!');
   });
 
-  socket.write(payload, (err) => {
+  socket.write(payload, err => {
     if (err) {
       vscode.window.showErrorMessage(err.message);
     }
