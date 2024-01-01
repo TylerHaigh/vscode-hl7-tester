@@ -17,3 +17,7 @@ TODO:
 ### 0.0.1
 
 Initial release of HL7 Test Panel
+
+### 0.0.2
+
+Fix issue with UI web html loading from incorrect path

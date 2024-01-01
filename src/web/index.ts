@@ -8,7 +8,7 @@ export function getWebViewContent(
 ) {
 
   // Get path to resource on disk
-  const onDiskPath = vscode.Uri.joinPath(context.extensionUri, 'src/web', fileName);
+  const onDiskPath = vscode.Uri.joinPath(context.extensionUri, 'assets', fileName);
 
   // And get the special URI to use with the webview
   const webViewFileUri = panel.webview.asWebviewUri(onDiskPath);
