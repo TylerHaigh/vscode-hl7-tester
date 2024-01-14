@@ -31,6 +31,9 @@
   <label for="port">Port</label>
   <input type="text" id="port" value="8081" />
 
+  <input type="button" id="start" onclick="startHl7Server()" value="Start"></input>
+  <input type="button" id="stop" value="Stop"></input>
+
   <hr />
 
   <input type="button" onclick="sendHl7Message()" value="Send" style="width:100%;"></input>
@@ -77,9 +80,7 @@
     }
 
     function sendHl7Message() {
-
       const vscode = loadVSCodeApiOnlyOnce();
-
       const hl7 = document.getElementById('hl7MessageEditor').value;
       const server = document.getElementById('server').value;
       const port = document.getElementById('port').value;
@@ -88,6 +89,20 @@
         command: 'alert',
         text: '🐛  on line 1',
         payload: { hl7, server, port }
+      })
+
+      return false;
+    }
+
+    function startHl7Server() {
+      const vscode = loadVSCodeApiOnlyOnce();
+      const server = document.getElementById('server').value;
+      const port = document.getElementById('port').value;
+
+      vscode.postMessage({
+        command: 'start',
+        text: '🐛  on line 1',
+        payload: { server, port }
       })
 
       return false;
