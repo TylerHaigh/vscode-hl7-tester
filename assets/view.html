@@ -32,7 +32,7 @@
   <input type="text" id="port" value="8081" />
 
   <input type="button" id="start" onclick="startHl7Server()" value="Start"></input>
-  <input type="button" id="stop" value="Stop"></input>
+  <input type="button" id="stop" onclick="stopHl7Server()" value="Stop"></input>
 
   <hr />
 
@@ -103,6 +103,16 @@
         command: 'start',
         text: '🐛  on line 1',
         payload: { server, port }
+      })
+
+      return false;
+    }
+
+    function stopHl7Server() {
+      const vscode = loadVSCodeApiOnlyOnce();
+
+      vscode.postMessage({
+        command: 'stop',
       })
 
       return false;

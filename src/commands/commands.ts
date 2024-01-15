@@ -23,6 +23,10 @@ export function hl7TestPanelSenderCommand(context: vscode.ExtensionContext) {
     undefined,
     context.subscriptions
   );
+
+  // panel.onDidDispose(() => handleOnDidReceiveMessage({
+  //   command: 'stop'
+  // }, panel));
 }
 
 export function hl7TestPanelReceiverCommand(_context: vscode.ExtensionContext) {

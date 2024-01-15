@@ -5,6 +5,9 @@ import { VSCodeMessage } from '../models';
 import { Hl7TcpServer } from '../hl7.server';
 import { TcpClient } from '../tcp.client';
 
+// https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+let server: Hl7TcpServer | undefined;
+
 export function handleOnDidReceiveMessage(message: VSCodeMessage, panel: vscode.WebviewPanel) {
   switch (message.command) {
     case 'alert': {
@@ -15,26 +18,23 @@ export function handleOnDidReceiveMessage(message: VSCodeMessage, panel: vscode.
         vscode.window.showWarningMessage('No message sent. missing details.');
         return;
       }
-      // const host = details.server;
+
       const port = parseInt(details.port);
       const host = details.server;
-
-      vscode.window.showInformationMessage(`Sending HL7 message to ${details.server}:${details.port}`);
       const client = new TcpClient();
 
-      client
-        .start(port, host, (data: Buffer) => {
-          const response = data.toString('utf8').replace(/[\r\n]+/g, '\n');
-          panel.webview.postMessage({ command: 'responseData', data: response });
-        })
-        .send(details.hl7, err => {
-          if (err) {
-            vscode.window.showErrorMessage(err.message);
-          }
-        });
+      vscode.window.showInformationMessage(`Sending HL7 message to ${details.server}:${details.port}`);
+
+      client.start(port, host, (data: Buffer) => {
+        const response = data.toString('utf8').replace(/[\r\n]+/g, '\n');
+        panel.webview.postMessage({ command: 'responseData', data: response });
+      }).send(details.hl7, err => {
+        if (err) {
+          vscode.window.showErrorMessage(err.message);
+        }
+      });
 
       client.close();
-
       return;
     }
 
@@ -49,14 +49,23 @@ export function handleOnDidReceiveMessage(message: VSCodeMessage, panel: vscode.
 
       const host = details.server;
       const port = parseInt(details.port);
-      const server = new Hl7TcpServer();
+
+      if (!server) {
+        server = new Hl7TcpServer();
+      } else {
+        // details may have changed (port, host)
+        server.close();
+        server = new Hl7TcpServer();
+      }
 
       server.start(port, host);
-
       return;
     }
 
-    case 'close': {
+    case 'stop': {
+      if (!server) { return; }
+      server.close();
+      server = undefined;
       return;
     }
 

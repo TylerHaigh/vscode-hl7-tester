@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-magic-numbers */
-// eslint-disable-next-line max-classes-per-file
 import net from 'net';
 import { Server } from 'net';
 
@@ -8,31 +6,26 @@ import { Server } from 'net';
 import moment from 'moment';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Message, Parser, Req, Res } from 'simple-hl7';
-
-const FS = String.fromCharCode(0x1c);
-const CR = String.fromCharCode(0x0d);
-const VT = String.fromCharCode(0x0b);
+import { Message, Parser } from 'simple-hl7';
 
 export class Hl7TcpServer {
-  protected server?: Server;
-  private readonly parser: Parser;
-
-  constructor() {
-    this.parser = new Parser();
-  }
+  private readonly parser = new Parser();
+  private tcpServer?: Server;
 
   start(port: number, host: string): void {
-    if (this.server) {
-      this.server.close(error => console.error(error));
+    if (this.tcpServer) {
+      this.tcpServer.close(error => console.error(error));
     }
 
-    this.server = net.createServer(socket => {
+    this.tcpServer = net.createServer(socket => {
       socket.on('end', () => console.log('client disconnected successfully.'));
       socket.on('data', data => {
         const message = data.toString();
         const hl7 = this.parser.parse(message.substring(1, message.length - 2));
         const ack = this.createAckMessage(hl7);
+        const FS = String.fromCharCode(0x1c);
+        const CR = String.fromCharCode(0x0d);
+        const VT = String.fromCharCode(0x0b);
 
         socket.write(VT + ack.toString() + FS + CR);
       });
@@ -40,20 +33,20 @@ export class Hl7TcpServer {
       socket.pipe(socket);
     });
 
-    this.server.on('error', error => {
+    this.tcpServer.on('error', error => {
       console.error(error);
     });
 
-    this.server.listen(port, host);
+    this.tcpServer.listen(port, host);
   }
 
   close(): void {
-    if (!this.server) {
+    if (!this.tcpServer) {
       console.log('Server was never initialized.');
       return;
     }
 
-    this.server.close(error => console.error(error));
+    this.tcpServer.close(error => console.error(error));
   }
 
   private createAckMessage(hl7: Message): Message {
