@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { VSCodeMessage } from '../models';
 import { Hl7TcpServer } from '../hl7.server';
-import { TcpClient } from '../tcp.client';
+import { Parser, Server } from 'simple-hl7';
 
 // https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
 let server: Hl7TcpServer | undefined;
@@ -21,20 +21,24 @@ export function handleOnDidReceiveMessage(message: VSCodeMessage, panel: vscode.
 
       const port = parseInt(details.port);
       const host = details.server;
-      const client = new TcpClient();
+      const client = Server.createTcpClient({ host: details.server, port: parseInt(details.port) })
 
       vscode.window.showInformationMessage(`Sending HL7 message to ${details.server}:${details.port}`);
 
-      client.start(port, host, (data: Buffer) => {
-        const response = data.toString('utf8').replace(/[\r\n]+/g, '\n');
-        panel.webview.postMessage({ command: 'responseData', data: response });
-      }).send(details.hl7, err => {
+      // const c = client.start(port, host, (data: Buffer) => {
+      //   const response = data.toString('utf8').replace(/[\r\n]+/g, '\n');
+      //   panel.webview.postMessage({ command: 'responseData', data: response });
+      // })
+
+
+      const msg = new Parser().parse(details.hl7);
+      client.send(msg, (err, ack) => {
         if (err) {
           vscode.window.showErrorMessage(err.message);
         }
+        client.close();
       });
 
-      client.close();
       return;
     }
 

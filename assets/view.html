@@ -47,6 +47,12 @@
 
   <script>
 
+    // Server is stopped by default
+    let serverIsRunning = false;
+    document.getElementById("start").disabled = false;
+    document.getElementById("stop").disabled = true;
+
+
 
     // Handle the message inside the webview
     window.addEventListener('message', event => {
@@ -103,7 +109,15 @@
         command: 'start',
         text: '🐛  on line 1',
         payload: { server, port }
-      })
+      });
+
+      // Assume server is running?
+      // Maybe get backend to send message to frontend to signal
+      // that server is definitely running
+      serverIsRunning = true;
+      document.getElementById("start").disabled = true;
+      document.getElementById("stop").disabled = false;
+
 
       return false;
     }
@@ -113,7 +127,14 @@
 
       vscode.postMessage({
         command: 'stop',
-      })
+      });
+
+      // Assume server is now stopped?
+      // Maybe get backend to send message to frontend to signal
+      // that server is definitely stopped
+      serverIsRunning = false;
+      document.getElementById("start").disabled = false;
+      document.getElementById("stop").disabled = true;
 
       return false;
     }
