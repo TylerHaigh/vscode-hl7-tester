@@ -10,7 +10,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onWebviewPanel:hl7TestPanelSender"
+  ],
   "repository": {
     "url": "https://github.com/TylerHaigh/vscode-hl7-tester"
   },
