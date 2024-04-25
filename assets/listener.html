@@ -61,16 +61,21 @@
 
       const host = document.getElementById('host').value;
       const port = document.getElementById('port').value;
+      const hl7Message = document.getElementById('hl7Message').value;
 
-      return { hl7, host, port }
+      return { host, port, hl7Message, serverIsRunning }
     }
 
     function setViewModel(viewModel) {
       const host = document.getElementById('host');
       const port = document.getElementById('port');
+      const hl7Message = document.getElementById('hl7Message');
 
       host.value = viewModel.host;
       port.value = viewModel.port;
+      hl7Message.value = viewModel.hl7Message;
+
+      setUiServerState(viewModel.serverIsRunning)
     }
 
 
@@ -86,6 +91,12 @@
       const viewModel = getViewModel();
 
       vscode.setState(viewModel);
+    }
+
+    function setUiServerState(serverIsRunning) {
+      (serverIsRunning)
+        ? webUiStartServer()
+        : webUiStopServer();
     }
 
     function webUiStartServer() {
@@ -108,8 +119,7 @@
 
     function startHl7Server() {
       const vscode = loadVSCodeApiOnlyOnce();
-      const host = document.getElementById('host').value;
-      const port = document.getElementById('port').value;
+      const { host, port } = getViewModel();
 
       vscode.postMessage({
         command: 'startServer',
@@ -117,6 +127,7 @@
       });
 
       webUiStartServer();
+      saveState();
 
       return false;
     }
@@ -129,47 +140,30 @@
       });
 
       webUiStopServer();
+      saveState();
 
       return false;
     }
 
     function afterLoad() {
-      stopHl7Server();
+      loadState();
 
       const vscode = loadVSCodeApiOnlyOnce();
-      // vscode.postMessage({
-      //   command: 'echo',
-      //   message: 'listener.html has loaded',
-      //   data: event
-      // });
     }
 
-    // setTimeout(function () {
-    //   afterLoad()
-    // }, 1000);
-
     window.onload = () => afterLoad();
-
-    // window.addEventListener("load", function () {
-    //   afterLoad();
-    // });
 
     function handleResponseDataEvent(message) {
       const messageBox = document.getElementById('hl7Message');
 
       const data = message.data;
       messageBox.value = data;
+
+      saveState();
     }
 
     // Handle the message inside the webview
     window.addEventListener('message', event => {
-
-      const vscode = loadVSCodeApiOnlyOnce();
-      vscode.postMessage({
-        command: 'echo',
-        message: 'listener.html got a message',
-        data: event
-      });
 
       const message = event.data; // The JSON data our extension sent
 

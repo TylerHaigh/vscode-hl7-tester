@@ -9,7 +9,8 @@ export class Hl7TcpServer {
   private tcpServer?: TcpServer;
 
   constructor(
-    private readonly panel: vscode.WebviewPanel
+    private readonly panel: vscode.WebviewPanel,
+    private readonly context: vscode.ExtensionContext
   ) { }
 
 
@@ -23,8 +24,8 @@ export class Hl7TcpServer {
     this.tcpServer.use((req, res, _next) => {
       const msg = req.raw;
 
-      this.panel.webview.postMessage({ command: 'responseData', data: msg })
-        .then(() => console.info('Sent message to web view'));
+      this.panel.webview.postMessage({ command: 'responseData', data: msg });
+      this.context.workspaceState.update('hl7Message', msg);
 
       res.end();
     });

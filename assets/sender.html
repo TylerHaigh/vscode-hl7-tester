@@ -49,6 +49,8 @@
 
       const data = message.data;
       response.value = data;
+
+      saveState();
     }
 
     // Handle the message inside the webview
@@ -85,18 +87,21 @@
       const hl7 = document.getElementById('hl7MessageEditor').value;
       const host = document.getElementById('host').value;
       const port = document.getElementById('port').value;
+      const hl7Response = document.getElementById('hl7Response').value;
 
-      return { hl7, host, port }
+      return { hl7, host, port, hl7Response }
     }
 
     function setViewModel(viewModel) {
       const hl7 = document.getElementById('hl7MessageEditor');
       const host = document.getElementById('host');
       const port = document.getElementById('port');
+      const hl7Response = document.getElementById('hl7Response');
 
       hl7.value = viewModel.hl7;
       host.value = viewModel.host;
       port.value = viewModel.port;
+      hl7Response.value = viewModel.hl7Response || '';
     }
 
     function loadState() {

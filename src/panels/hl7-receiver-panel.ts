@@ -6,7 +6,11 @@ import { getWebViewContent } from '../web';
 
 let server: Hl7TcpServer | undefined;
 
-function startServer(details: HL7ConnectionFormDetails, panel: vscode.WebviewPanel) {
+function startServer(
+  details: HL7ConnectionFormDetails,
+  panel: vscode.WebviewPanel,
+  context: vscode.ExtensionContext
+) {
 
   if (!details.port) {
     vscode.window.showWarningMessage('Could not start TCP server. Missing port.');
@@ -17,11 +21,11 @@ function startServer(details: HL7ConnectionFormDetails, panel: vscode.WebviewPan
   const port = parseInt(details.port);
 
   if (!server) {
-    server = new Hl7TcpServer(panel);
+    server = new Hl7TcpServer(panel, context);
   } else {
     // details may have changed (port, host)
     server.close();
-    server = new Hl7TcpServer(panel);
+    server = new Hl7TcpServer(panel, context);
   }
 
   server.start(port, host);
@@ -42,11 +46,15 @@ function echoMessage(message: WebViewEchoMessage) {
   vscode.window.showInformationMessage(JSON.stringify(message.data));
 }
 
-function handleOnDidReceiveMessage(message: ReceiverPanelEventMessage, panel: vscode.WebviewPanel) {
+function handleOnDidReceiveMessage(
+  message: ReceiverPanelEventMessage,
+  panel: vscode.WebviewPanel,
+  context: vscode.ExtensionContext
+) {
 
 
   switch (message.command) {
-    case 'startServer': return startServer(message.payload, panel);
+    case 'startServer': return startServer(message.payload, panel, context);
     case 'stopServer': return stopServer(panel);
     case 'echo': return echoMessage(message);
     default: {
@@ -88,7 +96,7 @@ export class Hl7ReceiverPanel {
     const webPanel = vscode.window.createWebviewPanel(
       Hl7ReceiverPanel.PANEL_NAME, // Identifies the type of the webview. Used internally
       'HL7 Listener Panel', // Title of the panel displayed to the user
-      vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+      vscode.ViewColumn.Two, // Editor column to show the new webview panel in.
       {
         enableScripts: true
       }
@@ -109,7 +117,7 @@ export class Hl7ReceiverPanel {
 
     // Handle messages from the webview
     this.panel.webview.onDidReceiveMessage(
-      (message: ReceiverPanelEventMessage) => handleOnDidReceiveMessage(message, this.panel),
+      (message: ReceiverPanelEventMessage) => handleOnDidReceiveMessage(message, this.panel, this.context),
       undefined,
       this.context.subscriptions
     );
