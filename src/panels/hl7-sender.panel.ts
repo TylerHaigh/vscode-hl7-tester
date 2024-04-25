@@ -1,24 +1,25 @@
 import * as vscode from 'vscode';
 import { getWebViewContent } from '../web';
-import { SendHl7MessageEvent } from '../models';
+import { SenderPanelEventMessage } from '../models';
 import { sendOneShot } from '../one-shot-connection';
 
-export function handleOnDidReceiveMessage(message: SendHl7MessageEvent, panel: vscode.WebviewPanel) {
+function sendHl7Message(message: SenderPanelEventMessage, panel: vscode.WebviewPanel) {
+  const details = message.payload;
+  if (!details) { return; }
+
+  if (!details.host || !details.port || !details.hl7) {
+    vscode.window.showWarningMessage('No message sent. missing details.');
+    return;
+  }
+
+  vscode.window.showInformationMessage(`Sending HL7 message to ${details.host}:${details.port}`);
+  sendOneShot({ host: details.host, port: parseInt(details.port) }, details.hl7, panel);
+  return;
+}
+
+function handleOnDidReceiveMessage(message: SenderPanelEventMessage, panel: vscode.WebviewPanel) {
   switch (message.command) {
-    case 'sendHl7Message': {
-
-      const details = message.payload;
-      if (!details) { return; }
-
-      if (!details.server || !details.port || !details.hl7) {
-        vscode.window.showWarningMessage('No message sent. missing details.');
-        return;
-      }
-
-      vscode.window.showInformationMessage(`Sending HL7 message to ${details.server}:${details.port}`);
-      sendOneShot({ host: details.server, port: parseInt(details.port) }, details.hl7, panel);
-      return;
-    }
+    case 'sendHl7Message': return sendHl7Message(message, panel);
 
     default: {
       // Do nothing
@@ -74,11 +75,11 @@ export class Hl7SenderPanel {
   ) {
 
     // Set the panel's HTML content
-    this.panel.webview.html = getWebViewContent('view.html', this.context.extensionUri, this.panel);
+    this.panel.webview.html = getWebViewContent('sender.html', this.context.extensionUri, this.panel);
 
     // Handle messages from the webview
     this.panel.webview.onDidReceiveMessage(
-      (message: SendHl7MessageEvent) => handleOnDidReceiveMessage(message, this.panel),
+      (message: SenderPanelEventMessage) => handleOnDidReceiveMessage(message, this.panel),
       undefined,
       this.context.subscriptions
     );

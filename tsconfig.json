@@ -15,7 +15,8 @@
     ],
     "types": [
       "simple-hl7",
-      "node"
+      "node",
+      "mocha"
     ]
     /* Additional Checks */
     // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */

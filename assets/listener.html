@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HL7 Message Listener</title>
+
+  <style>
+    .hl7-text-box {
+      width: 100%;
+      white-space: pre;
+      overflow-wrap: normal;
+      overflow-x: scroll;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <h1>HL7 Connector Config</h1>
+  <label for="host">Server Host</label>
+  <input type="text" id="host" value="localhost" onblur="saveState()" />
+
+  <label for="port">Port</label>
+  <input type="text" id="port" value="8081" onblur="saveState()" />
+
+  <hr />
+
+  <input type="button" id="start" onclick="startHl7Server()" value="Start"></input>
+  <input type="button" id="stop" onclick="stopHl7Server()" value="Stop"></input>
+
+
+  <h1>HL7 Response</h1>
+  <textarea id="hl7Response" rows="10" readonly="true" class="hl7-text-box"></textarea>
+
+
+
+  <script>
+
+    // Server is stopped by default
+    let serverIsRunning = false;
+    document.getElementById("start").disabled = false;
+    document.getElementById("stop").disabled = true;
+
+
+
+    function handleResponseDataEvent(message) {
+      const response = document.getElementById('hl7Response');
+
+      const data = message.data;
+      response.value = data;
+    }
+
+
+    // Handle the message inside the webview
+    window.addEventListener('message', event => {
+
+      const message = event.data; // The JSON data our extension sent
+
+      switch (message.command) {
+        case 'responseData': return handleResponseDataEvent(message);
+        default: {
+          // Do nothing
+        }
+
+      }
+    });
+
+
+    function loadVSCodeApiOnlyOnce() {
+      // https://stackoverflow.com/a/62968179
+      // As per stack overflow link above
+      // Only load the VSCode api once. Doing so multiple times
+      // will result in hidden failures.
+
+      if (!window.vscode) {
+        const vscode = acquireVsCodeApi();
+        window.vscode = vscode;
+      }
+
+      return window.vscode;
+    }
+
+    function getViewModel() {
+
+      const host = document.getElementById('host').value;
+      const port = document.getElementById('port').value;
+
+      return { hl7, host, port }
+    }
+
+    function setViewModel(viewModel) {
+      const host = document.getElementById('host');
+      const port = document.getElementById('port');
+
+      host.value = viewModel.host;
+      port.value = viewModel.port;
+    }
+
+    function loadState() {
+      const vscode = loadVSCodeApiOnlyOnce();
+      const previousState = vscode.getState();
+      setViewModel(previousState);
+    }
+
+
+    function saveState() {
+      const vscode = loadVSCodeApiOnlyOnce();
+      const viewModel = getViewModel();
+
+      vscode.setState(viewModel);
+    }
+
+    function startHl7Server() {
+      const vscode = loadVSCodeApiOnlyOnce();
+      const host = document.getElementById('host').value;
+      const port = document.getElementById('port').value;
+
+      vscode.postMessage({
+        command: 'startServer',
+        payload: { host, port }
+      });
+
+      // Assume server is running?
+      // Maybe get backend to send message to frontend to signal
+      // that server is definitely running
+      serverIsRunning = true;
+      document.getElementById("start").disabled = true;
+      document.getElementById("stop").disabled = false;
+
+
+      return false;
+    }
+
+    function stopHl7Server() {
+      const vscode = loadVSCodeApiOnlyOnce();
+
+      vscode.postMessage({
+        command: 'stopServer',
+      });
+
+      // Assume server is now stopped?
+      // Maybe get backend to send message to frontend to signal
+      // that server is definitely stopped
+      serverIsRunning = false;
+      document.getElementById("start").disabled = false;
+      document.getElementById("stop").disabled = true;
+
+      return false;
+    }
+
+    loadState(); // Call the load state function
+    window.onload(() => loadState());
+
+  </script>
+
+
+</body>
+
+</html>
