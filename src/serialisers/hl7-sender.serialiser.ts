@@ -7,12 +7,13 @@ export class Hl7SenderWebViewSerializer implements vscode.WebviewPanelSerializer
     private readonly context: vscode.ExtensionContext
   ) { }
 
-  async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, _state: any) {
+  async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, _state: unknown) {
 
     // `state` is the state persisted using `setState` inside the webview
     // console.log(`Got state: ${state}`);
 
     // Restore the content of our webview.
-    Hl7SenderPanel.revive(webviewPanel, this.context)
+    Hl7SenderPanel.revive(webviewPanel, this.context);
+    return Promise.resolve();
   }
 }

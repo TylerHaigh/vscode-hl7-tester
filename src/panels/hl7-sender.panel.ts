@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import * as vscode from 'vscode';
 import { getWebViewContent } from '../web';
 import { SenderPanelEventMessage } from '../models';
@@ -33,6 +34,7 @@ function handleOnDidReceiveMessage(message: SenderPanelEventMessage, panel: vsco
 export class Hl7SenderPanel {
 
   public static readonly PANEL_NAME = 'hl7TestPanelSender';
+  // eslint-disable-next-line no-use-before-define
   private static CURRENT_PANEL: Hl7SenderPanel | undefined;
 
   public static revive(
@@ -71,7 +73,7 @@ export class Hl7SenderPanel {
 
   constructor(
     private readonly panel: vscode.WebviewPanel,
-    private readonly context: vscode.ExtensionContext,
+    private readonly context: vscode.ExtensionContext
   ) {
 
     // Set the panel's HTML content

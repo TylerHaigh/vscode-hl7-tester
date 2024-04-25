@@ -1,26 +1,33 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable no-magic-numbers */
-// import net from 'net';
-// import { Server } from 'net';
-
-// eslint-disable-next-line import/no-extraneous-dependencies
+import * as vscode from 'vscode';
 import moment from 'moment';
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Message, Parser, TcpServer, tcp } from 'simple-hl7';
 
 export class Hl7TcpServer {
   private readonly parser = new Parser();
   private tcpServer?: TcpServer;
 
-  start(port: number, host: string): void {
+  constructor(
+    private readonly panel: vscode.WebviewPanel
+  ) { }
+
+
+  start(port: number, _host: string): void {
     if (this.tcpServer) {
       this.tcpServer.stop();
     }
 
     this.tcpServer = tcp();
-    // this.tcpServer.use((req, _res, _next) => {
-    //   const x = req.msg
-    // });
+
+    this.tcpServer.use((req, res, _next) => {
+      const msg = req.raw;
+
+      this.panel.webview.postMessage({ command: 'responseData', data: msg })
+        .then(() => console.info('Sent message to web view'));
+
+      res.end();
+    });
 
 
     // this.tcpServer = net.createServer(socket => {

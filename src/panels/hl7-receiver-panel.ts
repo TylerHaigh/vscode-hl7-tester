@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import * as vscode from 'vscode';
 import { Hl7TcpServer } from '../hl7.server';
-import { Parser, Server } from 'simple-hl7';
-import { ReceiverPanelEventMessage } from '../models';
+import { HL7ConnectionFormDetails, ReceiverPanelEventMessage, WebViewEchoMessage } from '../models';
 import { getWebViewContent } from '../web';
 
 let server: Hl7TcpServer | undefined;
 
-function startServer(details: ReceiverPanelEventMessage['payload']) {
+function startServer(details: HL7ConnectionFormDetails, panel: vscode.WebviewPanel) {
+
   if (!details.port) {
     vscode.window.showWarningMessage('Could not start TCP server. Missing port.');
     return;
@@ -16,11 +17,11 @@ function startServer(details: ReceiverPanelEventMessage['payload']) {
   const port = parseInt(details.port);
 
   if (!server) {
-    server = new Hl7TcpServer();
+    server = new Hl7TcpServer(panel);
   } else {
     // details may have changed (port, host)
     server.close();
-    server = new Hl7TcpServer();
+    server = new Hl7TcpServer(panel);
   }
 
   server.start(port, host);
@@ -34,17 +35,22 @@ function stopServer() {
   return;
 }
 
+function echoMessage(message: WebViewEchoMessage) {
+  vscode.window.showInformationMessage(message.message);
+  vscode.window.showInformationMessage(JSON.stringify(message.data));
+}
+
 function handleOnDidReceiveMessage(message: ReceiverPanelEventMessage, panel: vscode.WebviewPanel) {
 
-  const details = message.payload;
-  if (!details) { return; }
 
   switch (message.command) {
-    case 'startServer': return startServer(details);
+    case 'startServer': return startServer(message.payload, panel);
     case 'stopServer': return stopServer();
+    case 'echo': return echoMessage(message);
     default: {
       // Do nothing
-      const unknownCommand = message.command;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const unknownCommand = (message as ReceiverPanelEventMessage).command;
       console.warn(`Unmapped handler for message command ${unknownCommand}`);
     }
   }
@@ -54,6 +60,7 @@ function handleOnDidReceiveMessage(message: ReceiverPanelEventMessage, panel: vs
 export class Hl7ReceiverPanel {
 
   public static readonly PANEL_NAME = 'hl7TestPanelReceiver';
+  // eslint-disable-next-line no-use-before-define
   private static CURRENT_PANEL: Hl7ReceiverPanel | undefined;
 
   public static revive(
@@ -92,7 +99,7 @@ export class Hl7ReceiverPanel {
 
   constructor(
     private readonly panel: vscode.WebviewPanel,
-    private readonly context: vscode.ExtensionContext,
+    private readonly context: vscode.ExtensionContext
   ) {
 
     // Set the panel's HTML content

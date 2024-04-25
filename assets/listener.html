@@ -32,8 +32,8 @@
   <input type="button" id="stop" onclick="stopHl7Server()" value="Stop"></input>
 
 
-  <h1>HL7 Response</h1>
-  <textarea id="hl7Response" rows="10" readonly="true" class="hl7-text-box"></textarea>
+  <h1>HL7 Message</h1>
+  <textarea id="hl7Message" rows="10" readonly="true" class="hl7-text-box"></textarea>
 
 
 
@@ -47,15 +47,22 @@
 
 
     function handleResponseDataEvent(message) {
-      const response = document.getElementById('hl7Response');
+      const messageBox = document.getElementById('hl7Message');
 
       const data = message.data;
-      response.value = data;
+      messageBox.value = data;
     }
 
 
     // Handle the message inside the webview
     window.addEventListener('message', event => {
+
+      const vscode = loadVSCodeApiOnlyOnce();
+      vscode.postMessage({
+        command: 'echo',
+        message: 'listener.html got a message',
+        data: event
+      });
 
       const message = event.data; // The JSON data our extension sent
 
