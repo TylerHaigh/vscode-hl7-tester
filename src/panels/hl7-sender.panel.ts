@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { getWebViewContent } from '../web';
-import { VSCodeMessage } from '../models';
+import { SendHl7MessageEvent } from '../models';
 import { sendOneShot } from '../one-shot-connection';
 
-export function handleOnDidReceiveMessage(message: VSCodeMessage, panel: vscode.WebviewPanel) {
+export function handleOnDidReceiveMessage(message: SendHl7MessageEvent, panel: vscode.WebviewPanel) {
   switch (message.command) {
     case 'sendHl7Message': {
 
@@ -78,7 +78,7 @@ export class Hl7SenderPanel {
 
     // Handle messages from the webview
     this.panel.webview.onDidReceiveMessage(
-      (message: VSCodeMessage) => handleOnDidReceiveMessage(message, this.panel),
+      (message: SendHl7MessageEvent) => handleOnDidReceiveMessage(message, this.panel),
       undefined,
       this.context.subscriptions
     );

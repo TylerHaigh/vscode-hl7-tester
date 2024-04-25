@@ -1,4 +1,4 @@
-export interface VSCodeMessage {
+export interface SendHl7MessageEvent {
   command: 'sendHl7Message'
   payload: {
     hl7: string
