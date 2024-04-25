@@ -13,7 +13,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onWebviewPanel:hl7TestPanelSender"
+    "onWebviewPanel:hl7TestPanelSender",
+    "onWebviewPanel:hl7TestPanelReceiver"
   ],
   "repository": {
     "url": "https://github.com/TylerHaigh/vscode-hl7-tester"

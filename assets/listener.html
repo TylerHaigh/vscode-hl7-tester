@@ -39,42 +39,9 @@
 
   <script>
 
+
     // Server is stopped by default
     let serverIsRunning = false;
-    document.getElementById("start").disabled = false;
-    document.getElementById("stop").disabled = true;
-
-
-
-    function handleResponseDataEvent(message) {
-      const messageBox = document.getElementById('hl7Message');
-
-      const data = message.data;
-      messageBox.value = data;
-    }
-
-
-    // Handle the message inside the webview
-    window.addEventListener('message', event => {
-
-      const vscode = loadVSCodeApiOnlyOnce();
-      vscode.postMessage({
-        command: 'echo',
-        message: 'listener.html got a message',
-        data: event
-      });
-
-      const message = event.data; // The JSON data our extension sent
-
-      switch (message.command) {
-        case 'responseData': return handleResponseDataEvent(message);
-        default: {
-          // Do nothing
-        }
-
-      }
-    });
-
 
     function loadVSCodeApiOnlyOnce() {
       // https://stackoverflow.com/a/62968179
@@ -106,6 +73,7 @@
       port.value = viewModel.port;
     }
 
+
     function loadState() {
       const vscode = loadVSCodeApiOnlyOnce();
       const previousState = vscode.getState();
@@ -120,6 +88,24 @@
       vscode.setState(viewModel);
     }
 
+    function webUiStartServer() {
+      // Assume server is running?
+      // Maybe get backend to send message to frontend to signal
+      // that server is definitely running
+      serverIsRunning = true;
+      document.getElementById("start").disabled = true;
+      document.getElementById("stop").disabled = false;
+    }
+
+    function webUiStopServer() {
+      // Assume server is now stopped?
+      // Maybe get backend to send message to frontend to signal
+      // that server is definitely stopped
+      serverIsRunning = false;
+      document.getElementById("start").disabled = false;
+      document.getElementById("stop").disabled = true;
+    }
+
     function startHl7Server() {
       const vscode = loadVSCodeApiOnlyOnce();
       const host = document.getElementById('host').value;
@@ -130,13 +116,7 @@
         payload: { host, port }
       });
 
-      // Assume server is running?
-      // Maybe get backend to send message to frontend to signal
-      // that server is definitely running
-      serverIsRunning = true;
-      document.getElementById("start").disabled = true;
-      document.getElementById("stop").disabled = false;
-
+      webUiStartServer();
 
       return false;
     }
@@ -148,18 +128,60 @@
         command: 'stopServer',
       });
 
-      // Assume server is now stopped?
-      // Maybe get backend to send message to frontend to signal
-      // that server is definitely stopped
-      serverIsRunning = false;
-      document.getElementById("start").disabled = false;
-      document.getElementById("stop").disabled = true;
+      webUiStopServer();
 
       return false;
     }
 
-    loadState(); // Call the load state function
-    window.onload(() => loadState());
+    function afterLoad() {
+      stopHl7Server();
+
+      const vscode = loadVSCodeApiOnlyOnce();
+      // vscode.postMessage({
+      //   command: 'echo',
+      //   message: 'listener.html has loaded',
+      //   data: event
+      // });
+    }
+
+    // setTimeout(function () {
+    //   afterLoad()
+    // }, 1000);
+
+    window.onload = () => afterLoad();
+
+    // window.addEventListener("load", function () {
+    //   afterLoad();
+    // });
+
+    function handleResponseDataEvent(message) {
+      const messageBox = document.getElementById('hl7Message');
+
+      const data = message.data;
+      messageBox.value = data;
+    }
+
+    // Handle the message inside the webview
+    window.addEventListener('message', event => {
+
+      const vscode = loadVSCodeApiOnlyOnce();
+      vscode.postMessage({
+        command: 'echo',
+        message: 'listener.html got a message',
+        data: event
+      });
+
+      const message = event.data; // The JSON data our extension sent
+
+      switch (message.command) {
+        case 'responseData': return handleResponseDataEvent(message);
+        default: {
+          // Do nothing
+        }
+
+      }
+    });
+
 
   </script>
 

@@ -25,13 +25,15 @@ function startServer(details: HL7ConnectionFormDetails, panel: vscode.WebviewPan
   }
 
   server.start(port, host);
+  panel.webview.postMessage({ command: 'responseData', data: 'Waiting for message...' });
   return;
 }
 
-function stopServer() {
+function stopServer(panel: vscode.WebviewPanel) {
   if (!server) { return; }
   server.close();
   server = undefined;
+  panel.webview.postMessage({ command: 'responseData', data: 'Server has stopped.' });
   return;
 }
 
@@ -45,7 +47,7 @@ function handleOnDidReceiveMessage(message: ReceiverPanelEventMessage, panel: vs
 
   switch (message.command) {
     case 'startServer': return startServer(message.payload, panel);
-    case 'stopServer': return stopServer();
+    case 'stopServer': return stopServer(panel);
     case 'echo': return echoMessage(message);
     default: {
       // Do nothing
