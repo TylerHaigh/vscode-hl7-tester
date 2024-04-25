@@ -1,6 +1,5 @@
 export interface VSCodeMessage {
-  command: 'alert'
-  text: string
+  command: 'sendHl7Message'
   payload: {
     hl7: string
     server: string
