@@ -16,6 +16,7 @@ export class Hl7SenderPanel {
   }
 
   public static createOrShow(context: vscode.ExtensionContext) {
+
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
       : undefined;
