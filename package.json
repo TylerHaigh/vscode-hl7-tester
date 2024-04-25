@@ -3,6 +3,7 @@
   "publisher": "TylerHaigh",
   "displayName": "VSCode HL7 Tester",
   "description": "HL7 Test Panel",
+  "icon": "images/hl7.png",
   "version": "0.0.2",
   "engines": {
     "vscode": "^1.85.0",
