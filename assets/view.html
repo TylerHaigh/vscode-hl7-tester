@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cat Coding</title>
+  <title>HL7 Message Sender</title>
 
   <style>
     .hl7-text-box {
@@ -20,16 +20,16 @@
 
   <h1>Message Editor</h1>
   <label for="hl7MessageEditor">HL7 Message</label>
-  <textarea id="hl7MessageEditor" rows="10" class="hl7-text-box"></textarea>
+  <textarea id="hl7MessageEditor" rows="10" class="hl7-text-box" onblur="saveState()"></textarea>
 
   <hr />
 
   <h1>HL7 Connector Config</h1>
   <label for="server">Server Host</label>
-  <input type="text" id="server" value="localhost" />
+  <input type="text" id="server" value="localhost" onblur="saveState()" />
 
   <label for="port">Port</label>
-  <input type="text" id="port" value="8081" />
+  <input type="text" id="port" value="8081" onblur="saveState()" />
 
   <hr />
 
@@ -76,22 +76,55 @@
       return window.vscode;
     }
 
-    function sendHl7Message() {
-
-      const vscode = loadVSCodeApiOnlyOnce();
+    function getViewModel() {
 
       const hl7 = document.getElementById('hl7MessageEditor').value;
       const server = document.getElementById('server').value;
       const port = document.getElementById('port').value;
 
+      return { hl7, server, port }
+    }
+
+    function setViewModel(viewModel) {
+      const hl7 = document.getElementById('hl7MessageEditor');
+      const server = document.getElementById('server');
+      const port = document.getElementById('port');
+
+      hl7.value = viewModel.hl7;
+      server.value = viewModel.server;
+      port.value = viewModel.port;
+    }
+
+    function loadState() {
+      const vscode = loadVSCodeApiOnlyOnce();
+      const previousState = vscode.getState();
+      setViewModel(previousState);
+    }
+
+
+    function saveState() {
+      const vscode = loadVSCodeApiOnlyOnce();
+      const viewModel = getViewModel();
+
+      vscode.setState(viewModel);
+    }
+
+    function sendHl7Message() {
+
+      const vscode = loadVSCodeApiOnlyOnce();
+      const viewModel = getViewModel();
+
       vscode.postMessage({
-        command: 'alert',
-        text: '🐛  on line 1',
-        payload: { hl7, server, port }
-      })
+        command: 'sendHl7Message',
+        payload: viewModel
+      });
 
       return false;
     }
+
+    loadState(); // Call the load state function
+    window.onload(() => loadState());
+
   </script>
 
 
