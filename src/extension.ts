@@ -2,8 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { hl7TestPanelReceiverCommand, hl7TestPanelSenderCommand } from './commands';
-import { Hl7SenderWebViewSerializer } from './serialisers';
-import { Hl7SenderPanel } from './panels';
+import { Hl7ReceiverWebViewSerializer, Hl7SenderWebViewSerializer } from './serialisers';
+import { Hl7ReceiverPanel, Hl7SenderPanel } from './panels';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -28,6 +28,12 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.window.registerWebviewPanelSerializer(
     Hl7SenderPanel.PANEL_NAME,
     new Hl7SenderWebViewSerializer(context)
+  );
+
+  // Register a serializer for reloading webview type
+  vscode.window.registerWebviewPanelSerializer(
+    Hl7ReceiverPanel.PANEL_NAME,
+    new Hl7ReceiverWebViewSerializer(context)
   );
 }
 

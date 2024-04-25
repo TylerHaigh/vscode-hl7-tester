@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { Hl7SenderPanel } from '../panels';
+import { Hl7ReceiverPanel } from '../panels';
 
-export class Hl7SenderWebViewSerializer implements vscode.WebviewPanelSerializer {
+export class Hl7ReceiverWebViewSerializer implements vscode.WebviewPanelSerializer {
 
   constructor(
     private readonly context: vscode.ExtensionContext
@@ -10,10 +10,10 @@ export class Hl7SenderWebViewSerializer implements vscode.WebviewPanelSerializer
   async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, _state: unknown) {
 
     // `state` is the state persisted using `setState` inside the webview
-    // console.log(`Got state: ${state}`);
+    // console.log(`Got state: ${JSON.stringify(_state)}`);
 
     // Restore the content of our webview.
-    Hl7SenderPanel.revive(webviewPanel, this.context);
+    Hl7ReceiverPanel.revive(webviewPanel, this.context);
     return Promise.resolve();
   }
 }
