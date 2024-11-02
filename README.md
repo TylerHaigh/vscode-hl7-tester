@@ -25,6 +25,11 @@ TODO:
 
 ## Release Notes
 
+### 0.0.4
+
+* Add option for specifying HL7 segment separator line endings.
+* Fix issue with response processing by stripping of VT and FS characters
+
 ### 0.0.3
 
 Include new contribution to launch a HL7 Receiver panel to stop/start a HL7 server listener
