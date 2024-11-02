@@ -35,6 +35,10 @@ export function sendOneShot(conn: HL7ConnectionDetails, message: string, panel: 
 
     response = response.replace(/[\r\n]+/g, '\n');
 
+    // Remember to remove the VT ans FS characters
+    response = response.replace(VT, '');
+    response = response.replace(FS, '');
+
     console.log(response);
 
     // Send a message to our webview.
