@@ -1,8 +1,25 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import * as vscode from 'vscode';
 import { getWebViewContent } from '../web';
-import { SenderPanelEventMessage } from '../models';
+import { LineEnding, SenderPanelEventMessage } from '../models';
 import { sendOneShot } from '../one-shot-connection';
+
+
+function encodeLineEnding(lineEnding: LineEnding) {
+  switch (lineEnding) {
+    case 'CR': return '\r';
+    case 'LF': return '\n';
+    case 'CRLF': return '\r\n';
+    default: throw new Error(`Unhandled Line Ending for ${lineEnding as string}`);
+  }
+}
+
+function formatMessageLineEnding(msg: string, lineEnding: LineEnding) {
+  const encodedLineEnding = encodeLineEnding(lineEnding);
+  msg = msg.replace(/[\r\n]+/g, encodedLineEnding);
+  return msg;
+}
+
 
 function sendHl7Message(message: SenderPanelEventMessage, panel: vscode.WebviewPanel) {
   const details = message.payload;
@@ -13,8 +30,10 @@ function sendHl7Message(message: SenderPanelEventMessage, panel: vscode.WebviewP
     return;
   }
 
+  const formattedMessage = formatMessageLineEnding(details.hl7, details.lineEnding);
+
   vscode.window.showInformationMessage(`Sending HL7 message to ${details.host}:${details.port}`);
-  sendOneShot({ host: details.host, port: parseInt(details.port) }, details.hl7, panel);
+  sendOneShot({ host: details.host, port: parseInt(details.port) }, formattedMessage, panel);
   return;
 }
 

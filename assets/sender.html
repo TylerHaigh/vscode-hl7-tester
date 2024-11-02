@@ -33,6 +33,14 @@
 
   <hr />
 
+  <label for="lineEnding">Line Ending</label>
+
+  <select name="lineEnding" id="lineEnding">
+    <option value="CR">CR</option>
+    <option value="LF">LF</option>
+    <option value="CRLF">CRLF</option>
+  </select>
+
   <input type="button" onclick="sendHl7Message()" value="Send" style="width:100%;"></input>
 
   <hr />
@@ -87,20 +95,23 @@
       const hl7 = document.getElementById('hl7MessageEditor').value;
       const host = document.getElementById('host').value;
       const port = document.getElementById('port').value;
+      const lineEnding = document.getElementById('lineEnding').value;
       const hl7Response = document.getElementById('hl7Response').value;
 
-      return { hl7, host, port, hl7Response }
+      return { hl7, host, port, lineEnding, hl7Response }
     }
 
     function setViewModel(viewModel) {
       const hl7 = document.getElementById('hl7MessageEditor');
       const host = document.getElementById('host');
       const port = document.getElementById('port');
+      const lineEnding = document.getElementById('lineEnding');
       const hl7Response = document.getElementById('hl7Response');
 
       hl7.value = viewModel.hl7;
       host.value = viewModel.host;
       port.value = viewModel.port;
+      lineEnding.value = viewModel.lineEnding;
       hl7Response.value = viewModel.hl7Response || '';
     }
 
